@@ -416,7 +416,7 @@ textarea {
 }
 
 .net-row td {
-  color: var(--ok);
+  color: #7a5f00;
   font-weight: 700;
 }
 
@@ -579,7 +579,7 @@ textarea {
 .summary-table tbody tr:nth-child(4) { background: rgba(240, 170, 170, 0.18); box-shadow: inset 3px 0 0 #f0aaaa; } /* Expenses   – rose   */
 .summary-table tbody tr:nth-child(4) td:first-child { color: #8f3d3d; font-weight: 700; }
 
-.net-row { background: rgba(168, 220, 185, 0.18) !important; box-shadow: inset 3px 0 0 #a8dcb9 !important; }
+.net-row { background: rgba(245, 215, 142, 0.22) !important; box-shadow: inset 3px 0 0 #f5d78e !important; }
 
 @media (max-width: 1240px) {
   .three-col {
