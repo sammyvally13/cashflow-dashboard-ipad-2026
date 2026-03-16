@@ -1,0 +1,635 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Cashflow Dashboard Web App</title>
+
+    <!-- PWA -->
+    <link rel="manifest" href="./manifest.json" />
+    <link rel="apple-touch-icon" href="./icon.svg" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Cashflow" />
+    <meta name="theme-color" content="#8d6748" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Source+Sans+3:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles-2026.css" />
+  </head>
+  <body>
+    <div class="bg-glow bg-glow-left"></div>
+    <div class="bg-glow bg-glow-right"></div>
+
+    <main class="app-shell">
+      <header class="top-header">
+        <p class="eyebrow">Financial Planning Workspace</p>
+        <h1>Cashflow Dashboard</h1>
+      </header>
+
+      <section class="card client-card">
+        <div>
+          <label for="clientName">Client Name</label>
+          <input id="clientName" type="text" value="" />
+        </div>
+        <div>
+          <label for="dob">Date of Birth</label>
+          <input id="dob" type="date" value="" />
+        </div>
+        <div>
+          <label for="presentationDate">Presentation Date</label>
+          <input id="presentationDate" type="date" />
+        </div>
+        <div>
+          <label for="consultantName">Consultant</label>
+          <input id="consultantName" type="text" value="" />
+        </div>
+      </section>
+
+      <section class="dashboard-grid two-col">
+        <article class="card panel income-panel">
+          <h2>Income</h2>
+
+          <div class="item-row">
+            <div class="item-label">Employment</div>
+            <div class="input-group">
+              <button type="button" class="toggle-btn active" data-field="employment" data-type="Monthly">Monthly</button>
+              <button type="button" class="toggle-btn" data-field="employment" data-type="Annual">Annual</button>
+              <input type="number" id="employment" class="item-input" value="" />
+            </div>
+            <textarea class="item-note" placeholder="Base salary, role, expected progression"></textarea>
+          </div>
+
+          <div class="item-row">
+            <div class="item-label">Bonus</div>
+            <div class="input-group">
+              <button type="button" class="toggle-btn active" data-field="bonus" data-type="Monthly">Monthly</button>
+              <button type="button" class="toggle-btn" data-field="bonus" data-type="Annual">Annual</button>
+              <input type="number" id="bonus" class="item-input" value="" />
+            </div>
+            <textarea class="item-note" placeholder="Bonus frequency and expected amount"></textarea>
+          </div>
+
+          <div class="item-row">
+            <div class="item-label">Other Income</div>
+            <div class="input-group">
+              <button type="button" class="toggle-btn active" data-field="otherIncome" data-type="Monthly">Monthly</button>
+              <button type="button" class="toggle-btn" data-field="otherIncome" data-type="Annual">Annual</button>
+              <input type="number" id="otherIncome" class="item-input" value="" />
+            </div>
+            <textarea class="item-note" placeholder="Rental, side business, dividends"></textarea>
+          </div>
+
+          <div class="totals-block">
+            <div>
+              <p>Gross Monthly</p>
+              <strong id="grossIncomeM">$0.00</strong>
+            </div>
+            <div>
+              <p>Gross Annual</p>
+              <strong id="grossIncomeA">$0.00</strong>
+            </div>
+          </div>
+
+          <div class="totals-block accent">
+            <div>
+              <p>Net Monthly</p>
+              <strong id="netIncomeM">$0.00</strong>
+            </div>
+            <div>
+              <p>Net Annual</p>
+              <strong id="netIncomeA">$0.00</strong>
+            </div>
+          </div>
+        </article>
+
+        <article class="card panel cpf-panel">
+
+          <!-- Header: title + Employed / Self-Employed toggle -->
+          <div class="cpf-header-row">
+            <h2 id="cpfPanelTitle">CPF (Employee)</h2>
+            <div class="emp-type-toggle">
+              <button type="button" class="emp-type-btn active" id="btnEmployed" onclick="setEmploymentMode(false)">Employed</button>
+              <button type="button" class="emp-type-btn" id="btnSelfEmployed" onclick="setEmploymentMode(true)">Self-Employed</button>
+            </div>
+          </div>
+
+          <!-- ── Employed view (default) ── -->
+          <div id="cpfEmployedView">
+            <p class="cpf-caption">
+              <span id="cpfRateGroup">CPF 20% | Monthly cap S$1,600</span> · Monthly ceiling S$8,000 · Annual wage ceiling S$102,000
+            </p>
+
+            <div class="metric-line">
+              <span>OA</span>
+              <span id="cpfOAM">$0.00</span>
+              <span id="cpfOAA">$0.00</span>
+            </div>
+            <div class="metric-line">
+              <span>SA</span>
+              <span id="cpfSAM">$0.00</span>
+              <span id="cpfSAA">$0.00</span>
+            </div>
+            <div class="metric-line">
+              <span>MA</span>
+              <span id="cpfMAM">$0.00</span>
+              <span id="cpfMAA">$0.00</span>
+            </div>
+            <div class="metric-line total-line">
+              <span>Total CPF</span>
+              <span id="totalCPFM">$0.00</span>
+              <span id="totalCPFA">$0.00</span>
+            </div>
+
+            <div id="cpfNoteSection" class="note warning" style="display: none">
+              <strong>CPF Cap Note:</strong> <span id="cpfNote"></span>
+            </div>
+          </div>
+
+          <!-- ── Self-Employed (SEP) Medisave view ── -->
+          <div id="cpfSEPView" style="display: none">
+            <p class="cpf-caption" id="sepCaption">
+              Medisave contribution estimated from Net Trade Income · Based on CPF MARates 2026
+            </p>
+
+            <!-- Non-Pensioner / Pensioner toggle -->
+            <div class="pensioner-toggle-row">
+              <span class="pensioner-label">Table:</span>
+              <button type="button" class="emp-type-btn active" id="btnNonPensioner" onclick="setPensionerMode(false)">Non-Pensioner</button>
+              <button type="button" class="emp-type-btn" id="btnPensioner" onclick="setPensionerMode(true)">Pensioner</button>
+            </div>
+
+            <div class="metric-line">
+              <span>OA</span>
+              <span class="sep-muted">—</span>
+              <span class="sep-muted">—</span>
+            </div>
+            <div class="metric-line">
+              <span>SA</span>
+              <span class="sep-muted">—</span>
+              <span class="sep-muted">—</span>
+            </div>
+            <div class="metric-line">
+              <span>MA (est.)</span>
+              <span id="sepMAM">$0.00</span>
+              <span id="sepMAA">$0.00</span>
+            </div>
+            <div class="metric-line total-line">
+              <span>Total Medisave</span>
+              <span id="sepTotalM">$0.00</span>
+              <span id="sepTotalA">$0.00</span>
+            </div>
+
+            <div id="sepInfoNote" class="note info" style="display: none"></div>
+
+            <div id="sepPensionerNote" class="note warning" style="display: none">
+              <strong>Pensioner (Table 2):</strong> The estimate above uses Table 2 pensioner rates from CPF MARates 2026. OA &amp; SA contributions remain voluntary for SEPs.
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="item-row compact">
+            <div class="item-label">OA Balance</div>
+            <input type="number" id="cpfOABalance" class="item-input" value="" />
+          </div>
+          <div class="item-row compact">
+            <div class="item-label">SA Balance</div>
+            <input type="number" id="cpfSABalance" class="item-input" value="" />
+          </div>
+          <div class="item-row compact">
+            <div class="item-label">MA Balance</div>
+            <input type="number" id="cpfMABalance" class="item-input" value="" />
+          </div>
+
+          <div class="totals-block">
+            <div>
+              <p>Total CPF Balance</p>
+              <strong id="totalCPFBalance">$0.00</strong>
+            </div>
+          </div>
+
+        </article>
+      </section>
+
+      <section class="dashboard-grid one-col">
+        <article class="card panel expenses-panel">
+          <h2>Expenses & Liabilities</h2>
+          <h3>Personal Expenses</h3>
+          <div class="three-up-grid">
+
+          <div class="item-row">
+            <div class="item-label">Food</div>
+            <div class="input-group">
+              <button type="button" class="toggle-btn active" data-field="food" data-type="Monthly">Monthly</button>
+              <button type="button" class="toggle-btn" data-field="food" data-type="Annual">Annual</button>
+              <input type="number" id="food" class="item-input" value="" />
+            </div>
+            <textarea class="item-note" placeholder="Groceries, meals"></textarea>
+          </div>
+
+          <div class="item-row">
+            <div class="item-label">Apparel</div>
+            <div class="input-group">
+              <button type="button" class="toggle-btn active" data-field="apparel" data-type="Monthly">Monthly</button>
+              <button type="button" class="toggle-btn" data-field="apparel" data-type="Annual">Annual</button>
+              <input type="number" id="apparel" class="item-input" value="" />
+            </div>
+            <textarea class="item-note" placeholder="Clothes, grooming"></textarea>
+          </div>
+
+          <div class="item-row">
+            <div class="item-label">Transportation</div>
+            <div class="input-group">
+              <button type="button" class="toggle-btn active" data-field="transport" data-type="Monthly">Monthly</button>
+              <button type="button" class="toggle-btn" data-field="transport" data-type="Annual">Annual</button>
+              <input type="number" id="transport" class="item-input" value="" />
+            </div>
+            <textarea class="item-note" placeholder="Fuel, rides, transit"></textarea>
+          </div>
+
+          <div class="item-row">
+            <div class="item-label">Subscriptions</div>
+            <div class="input-group">
+              <button type="button" class="toggle-btn active" data-field="subscriptions" data-type="Monthly">Monthly</button>
+              <button type="button" class="toggle-btn" data-field="subscriptions" data-type="Annual">Annual</button>
+              <input type="number" id="subscriptions" class="item-input" value="" />
+            </div>
+            <textarea class="item-note" placeholder="Recurring digital or club memberships"></textarea>
+          </div>
+
+          <div class="item-row">
+            <div class="item-label">Home Bills</div>
+            <div class="input-group">
+              <button type="button" class="toggle-btn active" data-field="bills" data-type="Monthly">Monthly</button>
+              <button type="button" class="toggle-btn" data-field="bills" data-type="Annual">Annual</button>
+              <input type="number" id="bills" class="item-input" value="" />
+            </div>
+            <textarea class="item-note" placeholder="Utilities, telecom"></textarea>
+          </div>
+
+          <div class="item-row">
+            <div class="item-label">Allowances</div>
+            <div class="input-group">
+              <button type="button" class="toggle-btn active" data-field="allowances" data-type="Monthly">Monthly</button>
+              <button type="button" class="toggle-btn" data-field="allowances" data-type="Annual">Annual</button>
+              <input type="number" id="allowances" class="item-input" value="" />
+            </div>
+            <textarea class="item-note" placeholder="Family support"></textarea>
+          </div>
+
+          <div class="item-row">
+            <div class="item-label">Recreation</div>
+            <div class="input-group">
+              <button type="button" class="toggle-btn active" data-field="recreation" data-type="Monthly">Monthly</button>
+              <button type="button" class="toggle-btn" data-field="recreation" data-type="Annual">Annual</button>
+              <input type="number" id="recreation" class="item-input" value="" />
+            </div>
+            <textarea class="item-note" placeholder="Dining, leisure"></textarea>
+          </div>
+
+          <div class="item-row">
+            <div class="item-label">Holidays</div>
+            <div class="input-group">
+              <button type="button" class="toggle-btn active" data-field="holidays" data-type="Monthly">Monthly</button>
+              <button type="button" class="toggle-btn" data-field="holidays" data-type="Annual">Annual</button>
+              <input type="number" id="holidays" class="item-input" value="" />
+            </div>
+            <textarea class="item-note" placeholder="Travel and vacation plans"></textarea>
+          </div>
+
+          <div id="additionalPersonal"></div>
+          </div>
+          <button type="button" class="add-btn" onclick="addPersonalExpense()">+ Add Expense</button>
+
+          <h3>Loan Liabilities</h3>
+          <div class="three-up-grid">
+
+          <div class="item-row">
+            <div class="item-label">House / Renovation</div>
+            <div class="input-group">
+              <button type="button" class="toggle-btn active" data-field="loanHouse" data-type="Monthly">Monthly</button>
+              <button type="button" class="toggle-btn" data-field="loanHouse" data-type="Annual">Annual</button>
+              <input type="number" id="loanHouse" class="item-input" value="" />
+            </div>
+            <textarea class="item-note" placeholder="Mortgage or renovation instalments"></textarea>
+          </div>
+
+          <div class="item-row">
+            <div class="item-label">Car</div>
+            <div class="input-group">
+              <button type="button" class="toggle-btn active" data-field="loanCar" data-type="Monthly">Monthly</button>
+              <button type="button" class="toggle-btn" data-field="loanCar" data-type="Annual">Annual</button>
+              <input type="number" id="loanCar" class="item-input" value="" />
+            </div>
+            <textarea class="item-note" placeholder="Vehicle financing"></textarea>
+          </div>
+
+          <div class="item-row">
+            <div class="item-label">Education</div>
+            <div class="input-group">
+              <button type="button" class="toggle-btn active" data-field="loanEducation" data-type="Monthly">Monthly</button>
+              <button type="button" class="toggle-btn" data-field="loanEducation" data-type="Annual">Annual</button>
+              <input type="number" id="loanEducation" class="item-input" value="" />
+            </div>
+            <textarea class="item-note" placeholder="Student debt"></textarea>
+          </div>
+
+          <div class="item-row">
+            <div class="item-label">Business</div>
+            <div class="input-group">
+              <button type="button" class="toggle-btn active" data-field="loanBusiness" data-type="Monthly">Monthly</button>
+              <button type="button" class="toggle-btn" data-field="loanBusiness" data-type="Annual">Annual</button>
+              <input type="number" id="loanBusiness" class="item-input" value="" />
+            </div>
+            <textarea class="item-note" placeholder="Business loan obligations"></textarea>
+          </div>
+
+          <div class="item-row">
+            <div class="item-label">Personal / Credit</div>
+            <div class="input-group">
+              <button type="button" class="toggle-btn active" data-field="loanPersonal" data-type="Monthly">Monthly</button>
+              <button type="button" class="toggle-btn" data-field="loanPersonal" data-type="Annual">Annual</button>
+              <input type="number" id="loanPersonal" class="item-input" value="" />
+            </div>
+            <textarea class="item-note" placeholder="Cards, unsecured facilities"></textarea>
+          </div>
+
+          <div id="additionalLoans"></div>
+          </div>
+          <button type="button" class="add-btn" onclick="addLoan()">+ Add Liability</button>
+
+          <div class="totals-block">
+            <div>
+              <p>Total Monthly</p>
+              <strong id="totalExpensesM">$0.00</strong>
+            </div>
+            <div>
+              <p>Total Annual</p>
+              <strong id="totalExpensesA">$0.00</strong>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="dashboard-grid two-col">
+        <article class="card panel insurance-panel">
+          <h2>Insurance</h2>
+
+          <div class="item-row">
+            <div class="item-label">Hospitalisation</div>
+            <div class="input-group">
+              <button type="button" class="toggle-btn active" data-field="hospPremium" data-type="Monthly">Monthly</button>
+              <button type="button" class="toggle-btn" data-field="hospPremium" data-type="Annual">Annual</button>
+              <input type="number" id="hospPremium" class="item-input" value="" />
+            </div>
+            <textarea class="item-note" placeholder="Hospital / medical cover"></textarea>
+          </div>
+
+          <div class="item-row">
+            <div class="item-label">Whole Life</div>
+            <div class="input-group">
+              <button type="button" class="toggle-btn active" data-field="wholePremium" data-type="Monthly">Monthly</button>
+              <button type="button" class="toggle-btn" data-field="wholePremium" data-type="Annual">Annual</button>
+              <input type="number" id="wholePremium" class="item-input" value="" />
+            </div>
+            <textarea class="item-note" placeholder="Whole life policy"></textarea>
+          </div>
+
+          <div class="item-row">
+            <div class="item-label">Term Life</div>
+            <div class="input-group">
+              <button type="button" class="toggle-btn active" data-field="termPremium" data-type="Monthly">Monthly</button>
+              <button type="button" class="toggle-btn" data-field="termPremium" data-type="Annual">Annual</button>
+              <input type="number" id="termPremium" class="item-input" value="" />
+            </div>
+            <textarea class="item-note" placeholder="Term coverage details"></textarea>
+          </div>
+
+          <div class="item-row">
+            <div class="item-label">Critical Illness</div>
+            <div class="input-group">
+              <button type="button" class="toggle-btn active" data-field="ciPremium" data-type="Monthly">Monthly</button>
+              <button type="button" class="toggle-btn" data-field="ciPremium" data-type="Annual">Annual</button>
+              <input type="number" id="ciPremium" class="item-input" value="" />
+            </div>
+            <textarea class="item-note" placeholder="CI protection"></textarea>
+          </div>
+
+          <div id="additionalInsurance"></div>
+          <button type="button" class="add-btn" onclick="addInsurance()">+ Add Plan</button>
+
+          <div class="totals-block">
+            <div>
+              <p>Total Monthly</p>
+              <strong id="totalInsuranceM">$0.00</strong>
+            </div>
+            <div>
+              <p>Total Annual</p>
+              <strong id="totalInsuranceA">$0.00</strong>
+            </div>
+          </div>
+        </article>
+
+        <article class="card panel savings-panel">
+          <h2>Savings & Investments</h2>
+
+          <table class="savings-table">
+            <thead>
+              <tr>
+                <th>Contribution</th>
+                <th>Current Value</th>
+                <th>Remarks</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <div class="item-label">Liquid Cash</div>
+                  <p class="minor">No monthly/annual contribution toggle</p>
+                </td>
+                <td><input type="number" id="liquidCashCurrent" class="item-input" value="" /></td>
+                <td><textarea class="item-note" placeholder="Emergency fund, savings accounts"></textarea></td>
+              </tr>
+
+              <tr>
+                <td>
+                  <div class="item-label">Endowment</div>
+                  <div class="input-group tight">
+                    <button type="button" class="toggle-btn active" data-field="endowment" data-type="Monthly">Monthly</button>
+                    <button type="button" class="toggle-btn" data-field="endowment" data-type="Annual">Annual</button>
+                  </div>
+                  <input type="number" id="endowment" class="item-input" value="" />
+                </td>
+                <td><input type="number" id="endowmentCurrent" class="item-input" value="" /></td>
+                <td><textarea class="item-note" placeholder="Policy / maturity details"></textarea></td>
+              </tr>
+
+              <tr>
+                <td>
+                  <div class="item-label">Investment Plans</div>
+                  <div class="input-group tight">
+                    <button type="button" class="toggle-btn active" data-field="investments" data-type="Monthly">Monthly</button>
+                    <button type="button" class="toggle-btn" data-field="investments" data-type="Annual">Annual</button>
+                  </div>
+                  <input type="number" id="investments" class="item-input" value="" />
+                </td>
+                <td><input type="number" id="investmentsCurrent" class="item-input" value="" /></td>
+                <td><textarea class="item-note" placeholder="Fund type and return assumption"></textarea></td>
+              </tr>
+
+              <tr>
+                <td>
+                  <div class="item-label">Fixed Deposits</div>
+                  <div class="input-group tight">
+                    <button type="button" class="toggle-btn active" data-field="fixedDeposits" data-type="Monthly">Monthly</button>
+                    <button type="button" class="toggle-btn" data-field="fixedDeposits" data-type="Annual">Annual</button>
+                  </div>
+                  <input type="number" id="fixedDeposits" class="item-input" value="" />
+                </td>
+                <td><input type="number" id="fixedDepositsCurrent" class="item-input" value="" /></td>
+                <td><textarea class="item-note" placeholder="Term and maturity"></textarea></td>
+              </tr>
+
+              <tr>
+                <td>
+                  <div class="item-label">Stocks / Bonds</div>
+                  <div class="input-group tight">
+                    <button type="button" class="toggle-btn active" data-field="stocks" data-type="Monthly">Monthly</button>
+                    <button type="button" class="toggle-btn" data-field="stocks" data-type="Annual">Annual</button>
+                  </div>
+                  <input type="number" id="stocks" class="item-input" value="" />
+                </td>
+                <td><input type="number" id="stocksCurrent" class="item-input" value="" /></td>
+                <td><textarea class="item-note" placeholder="Portfolio notes"></textarea></td>
+              </tr>
+
+              <tr>
+                <td>
+                  <div class="item-label">Others</div>
+                  <div class="input-group tight">
+                    <button type="button" class="toggle-btn active" data-field="otherSavings" data-type="Monthly">Monthly</button>
+                    <button type="button" class="toggle-btn" data-field="otherSavings" data-type="Annual">Annual</button>
+                  </div>
+                  <input type="number" id="otherSavings" class="item-input" value="" />
+                </td>
+                <td><input type="number" id="otherSavingsCurrent" class="item-input" value="" /></td>
+                <td><textarea class="item-note" placeholder="Other savings or assets"></textarea></td>
+              </tr>
+            </tbody>
+            <tbody id="additionalSavings"></tbody>
+          </table>
+
+          <button type="button" class="add-btn" onclick="addSavings()">+ Add Savings</button>
+
+          <div class="totals-block">
+            <div>
+              <p>Total Monthly Contribution</p>
+              <strong id="totalSavingsM">$0.00</strong>
+            </div>
+            <div>
+              <p>Total Annual Contribution</p>
+              <strong id="totalSavingsA">$0.00</strong>
+            </div>
+          </div>
+
+          <div class="totals-block muted">
+            <div>
+              <p>Liquid Cash Current</p>
+              <strong id="totalLiquidCash">$0.00</strong>
+            </div>
+            <div>
+              <p>Portfolio Current Value</p>
+              <strong id="totalPortfolioCurrent">$0.00</strong>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="card summary-card">
+        <h2>Cashflow Summary</h2>
+        <table class="summary-table">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Monthly</th>
+              <th>Yearly</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Net Income</td>
+              <td id="summaryNetIncomeM">$0.00</td>
+              <td id="summaryNetIncomeY">$0.00</td>
+            </tr>
+            <tr>
+              <td>Insurance</td>
+              <td id="summaryInsuranceM">$0.00</td>
+              <td id="summaryInsuranceY">$0.00</td>
+            </tr>
+            <tr>
+              <td>Savings / Investments</td>
+              <td id="summarySavingsM">$0.00</td>
+              <td id="summarySavingsY">$0.00</td>
+            </tr>
+            <tr>
+              <td>Expenses</td>
+              <td id="summaryExpensesM">$0.00</td>
+              <td id="summaryExpensesY">$0.00</td>
+            </tr>
+            <tr class="net-row">
+              <td>Net Cashflow</td>
+              <td id="summaryNetCashflowM">$0.00</td>
+              <td id="summaryNetCashflowY">$0.00</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="dashboard-grid two-col charts-row">
+        <article class="card chart-card">
+          <h2>Expenses Breakdown</h2>
+          <div class="chart-wrap">
+            <canvas id="expensesPieChart"></canvas>
+          </div>
+        </article>
+        <article class="card chart-card">
+          <h2>12-Month Savings Projection (From Net Cashflow)</h2>
+          <div class="chart-wrap">
+            <canvas id="savingsProjectionChart"></canvas>
+          </div>
+        </article>
+      </section>
+
+      <section class="action-row">
+        <button type="button" class="btn primary" onclick="exportToExcel()">Export Excel</button>
+        <button type="button" class="btn secondary" onclick="saveClientProfile()">💾 Save Profile</button>
+        <button type="button" class="btn secondary" onclick="loadClientProfile()">📂 Load Profile</button>
+        <button type="button" class="btn ghost" onclick="location.reload()">Reset</button>
+      </section>
+      <input type="file" id="profileFileInput" accept=".json" style="display:none" onchange="onProfileFileSelected(event)" />
+    </main>
+
+    <footer class="dashboard-footer">
+      <span class="footer-logo">🔒</span>
+      <span class="footer-text">© <span id="footer-year"></span> SecuredWithSammy. All rights reserved.</span>
+    </footer>
+
+    <script>document.getElementById('footer-year').textContent = new Date().getFullYear();</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+    <script src="./templateData-2026.js"></script>
+    <script src="./app-2026.js"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('./sw.js');
+        });
+      }
+    </script>
+  </body>
+</html>
