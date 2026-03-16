@@ -117,7 +117,6 @@ h3 {
 
 .client-card > div {
   min-width: 0;
-  overflow: hidden;
 }
 
 label {
