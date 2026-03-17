@@ -505,7 +505,9 @@ function updateDashboard() {
     holidays,
     totalInsurance,
     totalSavings,
-    netCashflow
+    netCashflow,
+    additionalPersonalMonthly,
+    totalLoans
   );
   updateSavingsProjectionChart(netCashflow, liquidCashCurrent);
 
@@ -578,7 +580,9 @@ function updateExpensesChart(
   holidays,
   totalInsurance,
   totalSavings,
-  netCashflow
+  netCashflow,
+  otherExpenses,
+  totalLoans
 ) {
   if (!window.Chart) return;
   const canvas = document.getElementById("expensesPieChart");
@@ -623,10 +627,20 @@ function updateExpensesChart(
     "#a0c4e8"  /* Savings        – pastel blue    */
   ];
 
-  // Include Net Cashflow slice only when positive (can't show negative segments)
+  // Include optional slices only when they have a value
   const dataValues = [...baseValues];
   const labels     = [...baseLabels];
   const colors     = [...baseColors];
+  if (otherExpenses > 0) {
+    dataValues.push(otherExpenses);
+    labels.push("Other Expenses");
+    colors.push("#d4b5f0"); /* Other Expenses – pastel purple */
+  }
+  if (totalLoans > 0) {
+    dataValues.push(totalLoans);
+    labels.push("Loans/Liabilities");
+    colors.push("#f0c8a0"); /* Loans/Liabilities – pastel orange */
+  }
   if (netCashflow > 0) {
     dataValues.push(netCashflow);
     labels.push("Net Cashflow");
