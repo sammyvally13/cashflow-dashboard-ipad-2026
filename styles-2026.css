@@ -479,8 +479,7 @@ textarea {
 
 .cpf-header-row {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
+  flex-direction: column;
   gap: 10px;
   margin-bottom: 12px;
 }
@@ -491,8 +490,8 @@ textarea {
 
 .emp-type-toggle {
   display: flex;
+  flex-wrap: wrap;
   gap: 4px;
-  flex-shrink: 0;
 }
 
 .emp-type-btn {
