@@ -115,6 +115,7 @@
             <div class="emp-type-toggle">
               <button type="button" class="emp-type-btn active" id="btnEmployed" onclick="setEmploymentMode(false)">Employed</button>
               <button type="button" class="emp-type-btn" id="btnSelfEmployed" onclick="setEmploymentMode(true)">Self-Employed</button>
+              <button type="button" class="emp-type-btn" id="btnNoCPF" onclick="setNoCPFMode()">No CPF Contribution</button>
             </div>
           </div>
 
@@ -189,6 +190,11 @@
             <div id="sepPensionerNote" class="note warning" style="display: none">
               <strong>Pensioner (Table 2):</strong> The estimate above uses Table 2 pensioner rates from CPF MARates 2026. OA &amp; SA contributions remain voluntary for SEPs.
             </div>
+          </div>
+
+          <!-- ── No CPF Contribution view ── -->
+          <div id="cpfNoCPFView" style="display: none">
+            <p class="cpf-caption">No CPF deduction applied — gross income is used as take-home pay.</p>
           </div>
 
           <div class="divider"></div>

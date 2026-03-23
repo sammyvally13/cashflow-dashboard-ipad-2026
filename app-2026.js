@@ -3,6 +3,7 @@ let expensesPieChart = null;
 let savingsProjectionChart = null;
 let latestMetrics = null;
 let isSelfEmployed = false;
+let isNoCPF = false;
 let isPensioner = false;
 
 const TEMPLATE_FILE = "Cashflow Summary template.xlsx";
@@ -311,7 +312,11 @@ function updateDashboard() {
   let sepResult  = null;
   let netAnnual, netIncome;
 
-  if (isSelfEmployed) {
+  if (isNoCPF) {
+    // No CPF: gross income passes through untouched
+    netAnnual = grossIncome * 12;
+    netIncome = grossIncome;
+  } else if (isSelfEmployed) {
     // SEP: no standard CPF; only Medisave estimate
     const ageJan1 = getAgeAsAtJan1(dob);
     sepResult  = calculateSEPMedisave(grossIncome * 12, ageJan1, isPensioner);
@@ -328,7 +333,7 @@ function updateDashboard() {
     netIncome = netAnnual / 12;
   }
 
-  const totalCPF = isSelfEmployed ? (sepResult?.monthlyMA || 0) : (cpfResult?.monthlyTotal || 0);
+  const totalCPF = isNoCPF ? 0 : isSelfEmployed ? (sepResult?.monthlyMA || 0) : (cpfResult?.monthlyTotal || 0);
 
   const food = getMonthlyValue("food", valueById("food"));
   const apparel = getMonthlyValue("apparel", valueById("apparel"));
@@ -515,6 +520,7 @@ function updateDashboard() {
     grossIncome,
     netIncome,
     isSelfEmployed,
+    isNoCPF,
     totalCPF,
     totalExpenses,
     totalInsurance,
@@ -1259,9 +1265,11 @@ async function exportToExcel() {
     writeCell(ws, "G30", latestMetrics.netCashflow);
     writeCell(ws, "H30", latestMetrics.netCashflow * 12);
 
-    const sepModeLabel = latestMetrics.isSelfEmployed
-      ? `Self-Employed (SEP) — Medisave est. ${fmt(latestMetrics.sep?.annualMA || 0)} p.a. · Eff. rate: ${((latestMetrics.sep?.effectiveRate || 0) * 100).toFixed(2)}% · ${latestMetrics.sep?.pensioner ? "Pensioner (Table 2)" : "Non-Pensioner (Table 1)"} · CPF MARates2026`
-      : "Employed";
+    const sepModeLabel = latestMetrics.isNoCPF
+      ? "No CPF Contribution"
+      : latestMetrics.isSelfEmployed
+        ? `Self-Employed (SEP) — Medisave est. ${fmt(latestMetrics.sep?.annualMA || 0)} p.a. · Eff. rate: ${((latestMetrics.sep?.effectiveRate || 0) * 100).toFixed(2)}% · ${latestMetrics.sep?.pensioner ? "Pensioner (Table 2)" : "Non-Pensioner (Table 1)"} · CPF MARates2026`
+        : "Employed";
 
     const commentsRows = [
       ["Category", "Item", "Frequency", "Raw Input", "Monthly Value", "Annual Value", "Comment"],
@@ -1365,21 +1373,49 @@ async function exportToExcel() {
 // ─── Employment mode toggles ─────────────────────────────────────────────────
 
 function setEmploymentMode(selfEmployed) {
+  isNoCPF = false;
   isSelfEmployed = selfEmployed;
 
   const btnEmployed     = document.getElementById("btnEmployed");
   const btnSelfEmployed = document.getElementById("btnSelfEmployed");
+  const btnNoCPF        = document.getElementById("btnNoCPF");
   const cpfEmployedView = document.getElementById("cpfEmployedView");
   const cpfSEPView      = document.getElementById("cpfSEPView");
+  const cpfNoCPFView    = document.getElementById("cpfNoCPFView");
   const cpfPanelTitle   = document.getElementById("cpfPanelTitle");
 
   if (btnEmployed)     btnEmployed.classList.toggle("active", !selfEmployed);
   if (btnSelfEmployed) btnSelfEmployed.classList.toggle("active", selfEmployed);
+  if (btnNoCPF)        btnNoCPF.classList.remove("active");
   if (cpfEmployedView) cpfEmployedView.style.display = selfEmployed ? "none"  : "block";
   if (cpfSEPView)      cpfSEPView.style.display      = selfEmployed ? "block" : "none";
+  if (cpfNoCPFView)    cpfNoCPFView.style.display     = "none";
   if (cpfPanelTitle)   cpfPanelTitle.textContent      = selfEmployed
     ? "CPF (Self-Employed)"
     : "CPF (Employee)";
+
+  updateDashboard();
+}
+
+function setNoCPFMode() {
+  isNoCPF = true;
+  isSelfEmployed = false;
+
+  const btnEmployed     = document.getElementById("btnEmployed");
+  const btnSelfEmployed = document.getElementById("btnSelfEmployed");
+  const btnNoCPF        = document.getElementById("btnNoCPF");
+  const cpfEmployedView = document.getElementById("cpfEmployedView");
+  const cpfSEPView      = document.getElementById("cpfSEPView");
+  const cpfNoCPFView    = document.getElementById("cpfNoCPFView");
+  const cpfPanelTitle   = document.getElementById("cpfPanelTitle");
+
+  if (btnEmployed)     btnEmployed.classList.remove("active");
+  if (btnSelfEmployed) btnSelfEmployed.classList.remove("active");
+  if (btnNoCPF)        btnNoCPF.classList.add("active");
+  if (cpfEmployedView) cpfEmployedView.style.display = "none";
+  if (cpfSEPView)      cpfSEPView.style.display      = "none";
+  if (cpfNoCPFView)    cpfNoCPFView.style.display     = "block";
+  if (cpfPanelTitle)   cpfPanelTitle.textContent      = "No CPF Contribution";
 
   updateDashboard();
 }
@@ -1510,7 +1546,7 @@ function saveClientProfile() {
     fields:   {},
     notes:    {},
     toggles:  { ...inputTypes },
-    mode:     { isSelfEmployed, isPensioner },
+    mode:     { isSelfEmployed, isPensioner, isNoCPF },
     dynamic:  {
       additionalPersonal:  collectDynamicRowsForExport("additionalPersonal"),
       additionalLoans:     collectDynamicRowsForExport("additionalLoans"),
@@ -1584,7 +1620,11 @@ function applyClientProfile(profile) {
 
   // 4. Restore employment / pensioner mode
   if (profile.mode) {
-    setEmploymentMode(!!profile.mode.isSelfEmployed);
+    if (profile.mode.isNoCPF) {
+      setNoCPFMode();
+    } else {
+      setEmploymentMode(!!profile.mode.isSelfEmployed);
+    }
     setPensionerMode(!!profile.mode.isPensioner);
   }
 
@@ -1648,6 +1688,7 @@ window.addInsurance = addInsurance;
 window.addSavings = addSavings;
 window.exportToExcel = exportToExcel;
 window.setEmploymentMode = setEmploymentMode;
+window.setNoCPFMode = setNoCPFMode;
 window.setPensionerMode = setPensionerMode;
 window.saveClientProfile = saveClientProfile;
 window.loadClientProfile = loadClientProfile;
