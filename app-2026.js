@@ -1611,6 +1611,11 @@ function applyClientProfile(profile) {
   });
 
   // 3. Restore Monthly/Annual toggle states + re-highlight buttons
+  // Reset all static toggle buttons to Monthly (their default) and clear stale inputTypes
+  // before applying the saved state, so fields not in the profile revert to Monthly.
+  document.querySelectorAll(".toggle-btn[data-type='Monthly']").forEach(btn => btn.classList.add("active"));
+  document.querySelectorAll(".toggle-btn[data-type='Annual']").forEach(btn => btn.classList.remove("active"));
+  for (const key in inputTypes) delete inputTypes[key];
   Object.assign(inputTypes, profile.toggles || {});
   Object.entries(inputTypes).forEach(([fieldId, type]) => {
     document.querySelectorAll(`.toggle-btn[data-field="${fieldId}"]`).forEach((btn) => {
