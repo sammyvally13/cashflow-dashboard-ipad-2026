@@ -445,17 +445,17 @@ textarea {
 }
 
 .planned-items-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   margin-bottom: 10px;
 }
 
 .planned-items-title {
-  margin: 0;
-  font-size: 0.95rem;
-  font-family: "Fraunces", serif;
-  color: var(--text);
+  margin: 0 0 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-family: "Source Sans 3", sans-serif;
+  color: var(--text-soft);
 }
 
 .bt-row {
