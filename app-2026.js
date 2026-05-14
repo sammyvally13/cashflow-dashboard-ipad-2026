@@ -697,6 +697,52 @@ function updateExpensesChart(
   });
 }
 
+// ─── Big Ticket Items ────────────────────────────────────────────────────────
+
+function buildMonthOptions(selectedIndex = 0) {
+  let html = "";
+  for (let i = 0; i < 12; i++) {
+    const d = new Date(new Date().getFullYear(), new Date().getMonth() + i, 1);
+    const label = d.toLocaleString("default", { month: "short", year: "numeric" });
+    html += `<option value="${i}"${i === selectedIndex ? " selected" : ""}>${label}</option>`;
+  }
+  return html;
+}
+
+function addBigTicketItem(prefill = {}) {
+  const container = document.getElementById("bigTicketList");
+  if (!container) return;
+  const id = `bt${Date.now()}`;
+  const row = document.createElement("div");
+  row.className = "bt-row";
+  row.id = id;
+  row.innerHTML = `
+    <input  type="text"   class="bt-name"   placeholder="Item (e.g. Renovation)" value="${prefill.name || ""}" />
+    <input  type="number" class="bt-amount item-input" placeholder="Amount" value="${prefill.amount || ""}" />
+    <select class="bt-month">${buildMonthOptions(prefill.monthIndex || 0)}</select>
+    <button type="button" class="remove-btn bt-remove" onclick="document.getElementById('${id}').remove();updateDashboard();">✕</button>
+  `;
+  row.querySelector(".bt-amount").addEventListener("input",  updateDashboard);
+  row.querySelector(".bt-month").addEventListener("change",  updateDashboard);
+  row.querySelector(".bt-name").addEventListener("input",   updateDashboard);
+  container.appendChild(row);
+  updateDashboard();
+}
+
+function collectBigTicketItems() {
+  const items = [];
+  document.querySelectorAll("#bigTicketList .bt-row").forEach((row) => {
+    const amount = parseFloat(row.querySelector(".bt-amount")?.value) || 0;
+    if (amount <= 0) return;
+    items.push({
+      name:       row.querySelector(".bt-name")?.value?.trim() || "Expense",
+      amount,
+      monthIndex: parseInt(row.querySelector(".bt-month")?.value ?? "0", 10)
+    });
+  });
+  return items;
+}
+
 function updateSavingsProjectionChart(monthlySurplus, currentLiquidCash) {
   if (!window.Chart) return;
   const canvas = document.getElementById("savingsProjectionChart");
@@ -704,48 +750,76 @@ function updateSavingsProjectionChart(monthlySurplus, currentLiquidCash) {
 
   if (savingsProjectionChart) savingsProjectionChart.destroy();
 
+  const bigItems = collectBigTicketItems();
   const months = [];
-  const projectedSavings = [];
-  let running = currentLiquidCash;
+  const projectedSavings   = [];
+  const savingsWithExpenses = [];
+  let running     = currentLiquidCash;
+  let runningWith = currentLiquidCash;
 
   for (let i = 0; i < 12; i += 1) {
     const date = new Date(new Date().getFullYear(), new Date().getMonth() + i, 1);
     months.push(date.toLocaleString("default", { month: "short" }));
-    running += monthlySurplus;
+    running     += monthlySurplus;
+    runningWith += monthlySurplus;
+    bigItems.filter(it => it.monthIndex === i).forEach(it => { runningWith -= it.amount; });
     projectedSavings.push(Math.round(running));
+    savingsWithExpenses.push(Math.round(runningWith));
+  }
+
+  const datasets = [
+    {
+      label: "Projected Savings (from Net Cashflow)",
+      data: projectedSavings,
+      borderColor: "#7abfa0",
+      backgroundColor: "rgba(122, 191, 160, 0.15)",
+      borderWidth: 3,
+      fill: true,
+      tension: 0.35,
+      pointRadius: 4,
+      pointBackgroundColor: "#7abfa0",
+      pointBorderColor: "#fff",
+      pointBorderWidth: 2
+    }
+  ];
+
+  if (bigItems.length > 0) {
+    datasets.push({
+      label: "After Planned Expenses",
+      data: savingsWithExpenses,
+      borderColor: "#d97070",
+      backgroundColor: "rgba(217, 112, 112, 0.07)",
+      borderWidth: 2,
+      borderDash: [6, 3],
+      fill: false,
+      tension: 0.35,
+      pointRadius: 4,
+      pointBackgroundColor: "#d97070",
+      pointBorderColor: "#fff",
+      pointBorderWidth: 2
+    });
   }
 
   savingsProjectionChart = new Chart(canvas.getContext("2d"), {
     type: "line",
-    data: {
-      labels: months,
-      datasets: [
-        {
-          label: "Projected Savings (from Net Cashflow)",
-          data: projectedSavings,
-          borderColor: "#7abfa0",
-          backgroundColor: "rgba(122, 191, 160, 0.15)",
-          borderWidth: 3,
-          fill: true,
-          tension: 0.35,
-          pointRadius: 4,
-          pointBackgroundColor: "#7abfa0",
-          pointBorderColor: "#fff",
-          pointBorderWidth: 2
-        }
-      ]
-    },
+    data: { labels: months, datasets },
     options: {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
         legend: {
           labels: {
-            font: {
-              family: "Source Sans 3",
-              size: 11
-            },
+            font: { family: "Source Sans 3", size: 11 },
             usePointStyle: true
+          }
+        },
+        tooltip: {
+          callbacks: {
+            afterBody(items) {
+              const monthIdx = items[0]?.dataIndex;
+              const hits = bigItems.filter(it => it.monthIndex === monthIdx);
+              return hits.length ? hits.map(it => `⬇ ${it.name}: -$${it.amount.toLocaleString()}`) : [];
+            }
           }
         }
       },
@@ -753,21 +827,11 @@ function updateSavingsProjectionChart(monthlySurplus, currentLiquidCash) {
         y: {
           beginAtZero: true,
           ticks: {
-            callback(value) {
-              return "$" + Number(value).toLocaleString();
-            },
-            font: {
-              family: "Source Sans 3"
-            }
+            callback(value) { return "$" + Number(value).toLocaleString(); },
+            font: { family: "Source Sans 3" }
           }
         },
-        x: {
-          ticks: {
-            font: {
-              family: "Source Sans 3"
-            }
-          }
-        }
+        x: { ticks: { font: { family: "Source Sans 3" } } }
       }
     }
   });
@@ -1552,7 +1616,8 @@ function saveClientProfile() {
       additionalLoans:     collectDynamicRowsForExport("additionalLoans"),
       additionalInsurance: collectDynamicRowsForExport("additionalInsurance"),
       additionalSavings:   collectSavingsDynamicRowsForExport()
-    }
+    },
+    bigTicketItems: collectBigTicketItems()
   };
 
   PROFILE_STATIC_FIELDS.forEach((id) => {
@@ -1680,6 +1745,11 @@ function applyClientProfile(profile) {
     savingsContainer?.appendChild(row);
   });
 
+  // 6. Restore big ticket items
+  const btContainer = document.getElementById("bigTicketList");
+  if (btContainer) btContainer.innerHTML = "";
+  (profile.bigTicketItems || []).forEach((item) => addBigTicketItem(item));
+
   updateDashboard();
 }
 
@@ -1687,6 +1757,7 @@ function applyClientProfile(profile) {
 
 window.setType = setType;
 window.updateDashboard = updateDashboard;
+window.addBigTicketItem = addBigTicketItem;
 window.addPersonalExpense = addPersonalExpense;
 window.addLoan = addLoan;
 window.addInsurance = addInsurance;

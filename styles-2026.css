@@ -437,6 +437,66 @@ textarea {
   height: 320px;
 }
 
+/* ── Planned Big Ticket Items ──────────────────────────────────────────────── */
+.planned-items-section {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--border);
+}
+
+.planned-items-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.planned-items-title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-family: "Fraunces", serif;
+  color: var(--text);
+}
+
+.bt-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.bt-name {
+  flex: 1 1 160px;
+  min-width: 0;
+}
+
+.bt-amount {
+  flex: 0 0 110px;
+}
+
+.bt-month {
+  flex: 0 0 110px;
+  border: 1px solid #d8ccb3;
+  border-radius: 10px;
+  padding: 9px 10px;
+  background: #fff;
+  color: var(--text);
+  font: inherit;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.bt-remove {
+  flex-shrink: 0;
+}
+
+@media (max-width: 480px) {
+  .bt-name   { flex: 1 1 100%; }
+  .bt-amount { flex: 1 1 calc(50% - 8px); }
+  .bt-month  { flex: 1 1 calc(50% - 8px); }
+}
+
 .action-row {
   position: sticky;
   bottom: 10px;
