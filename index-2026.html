@@ -383,64 +383,6 @@
       </section>
 
       <section class="dashboard-grid two-col">
-        <article class="card panel insurance-panel">
-          <h2>Insurance</h2>
-
-          <div class="item-row">
-            <div class="item-label">Hospitalisation</div>
-            <div class="input-group">
-              <button type="button" class="toggle-btn active" data-field="hospPremium" data-type="Monthly">Monthly</button>
-              <button type="button" class="toggle-btn" data-field="hospPremium" data-type="Annual">Annual</button>
-              <input type="number" id="hospPremium" class="item-input" value="" />
-            </div>
-            <textarea class="item-note" placeholder="Hospital / medical cover"></textarea>
-          </div>
-
-          <div class="item-row">
-            <div class="item-label">Whole Life</div>
-            <div class="input-group">
-              <button type="button" class="toggle-btn active" data-field="wholePremium" data-type="Monthly">Monthly</button>
-              <button type="button" class="toggle-btn" data-field="wholePremium" data-type="Annual">Annual</button>
-              <input type="number" id="wholePremium" class="item-input" value="" />
-            </div>
-            <textarea class="item-note" placeholder="Whole life policy"></textarea>
-          </div>
-
-          <div class="item-row">
-            <div class="item-label">Term Life</div>
-            <div class="input-group">
-              <button type="button" class="toggle-btn active" data-field="termPremium" data-type="Monthly">Monthly</button>
-              <button type="button" class="toggle-btn" data-field="termPremium" data-type="Annual">Annual</button>
-              <input type="number" id="termPremium" class="item-input" value="" />
-            </div>
-            <textarea class="item-note" placeholder="Term coverage details"></textarea>
-          </div>
-
-          <div class="item-row">
-            <div class="item-label">Critical Illness</div>
-            <div class="input-group">
-              <button type="button" class="toggle-btn active" data-field="ciPremium" data-type="Monthly">Monthly</button>
-              <button type="button" class="toggle-btn" data-field="ciPremium" data-type="Annual">Annual</button>
-              <input type="number" id="ciPremium" class="item-input" value="" />
-            </div>
-            <textarea class="item-note" placeholder="CI protection"></textarea>
-          </div>
-
-          <div id="additionalInsurance"></div>
-          <button type="button" class="add-btn" onclick="addInsurance()">+ Add Plan</button>
-
-          <div class="totals-block">
-            <div>
-              <p>Total Monthly</p>
-              <strong id="totalInsuranceM">$0.00</strong>
-            </div>
-            <div>
-              <p>Total Annual</p>
-              <strong id="totalInsuranceA">$0.00</strong>
-            </div>
-          </div>
-        </article>
-
         <article class="card panel savings-panel">
           <h2>Savings & Investments</h2>
 
@@ -551,6 +493,64 @@
             <div>
               <p>Portfolio Current Value</p>
               <strong id="totalPortfolioCurrent">$0.00</strong>
+            </div>
+          </div>
+        </article>
+
+        <article class="card panel insurance-panel">
+          <h2>Insurance</h2>
+
+          <div class="item-row">
+            <div class="item-label">Hospitalisation</div>
+            <div class="input-group">
+              <button type="button" class="toggle-btn active" data-field="hospPremium" data-type="Monthly">Monthly</button>
+              <button type="button" class="toggle-btn" data-field="hospPremium" data-type="Annual">Annual</button>
+              <input type="number" id="hospPremium" class="item-input" value="" />
+            </div>
+            <textarea class="item-note" placeholder="Hospital / medical cover"></textarea>
+          </div>
+
+          <div class="item-row">
+            <div class="item-label">Whole Life</div>
+            <div class="input-group">
+              <button type="button" class="toggle-btn active" data-field="wholePremium" data-type="Monthly">Monthly</button>
+              <button type="button" class="toggle-btn" data-field="wholePremium" data-type="Annual">Annual</button>
+              <input type="number" id="wholePremium" class="item-input" value="" />
+            </div>
+            <textarea class="item-note" placeholder="Whole life policy"></textarea>
+          </div>
+
+          <div class="item-row">
+            <div class="item-label">Term Life</div>
+            <div class="input-group">
+              <button type="button" class="toggle-btn active" data-field="termPremium" data-type="Monthly">Monthly</button>
+              <button type="button" class="toggle-btn" data-field="termPremium" data-type="Annual">Annual</button>
+              <input type="number" id="termPremium" class="item-input" value="" />
+            </div>
+            <textarea class="item-note" placeholder="Term coverage details"></textarea>
+          </div>
+
+          <div class="item-row">
+            <div class="item-label">Critical Illness</div>
+            <div class="input-group">
+              <button type="button" class="toggle-btn active" data-field="ciPremium" data-type="Monthly">Monthly</button>
+              <button type="button" class="toggle-btn" data-field="ciPremium" data-type="Annual">Annual</button>
+              <input type="number" id="ciPremium" class="item-input" value="" />
+            </div>
+            <textarea class="item-note" placeholder="CI protection"></textarea>
+          </div>
+
+          <div id="additionalInsurance"></div>
+          <button type="button" class="add-btn" onclick="addInsurance()">+ Add Plan</button>
+
+          <div class="totals-block">
+            <div>
+              <p>Total Monthly</p>
+              <strong id="totalInsuranceM">$0.00</strong>
+            </div>
+            <div>
+              <p>Total Annual</p>
+              <strong id="totalInsuranceA">$0.00</strong>
             </div>
           </div>
         </article>
