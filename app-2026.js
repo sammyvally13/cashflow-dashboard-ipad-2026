@@ -980,13 +980,24 @@ function collectDynamicRows(containerId) {
 
 function summarizeDynamicItemNotes(items) {
   return items
-    .filter((item) => item.note)
-    .map((item) => `${item.label}: ${item.note}`)
-    .join(" | ");
+    .filter((item) => item.rawValue > 0 || item.note)
+    .map((item) => {
+      const freqSuffix = item.frequency === "Annual" ? "/yr" : "/mth";
+      const valuePart = item.rawValue > 0 ? `${fmt(item.rawValue)}${freqSuffix}` : "";
+      const line = valuePart ? `${item.label}: ${valuePart}` : item.label;
+      return item.note ? `${line} — ${item.note}` : line;
+    })
+    .join("\n");
 }
 
 function remarkForField(meta) {
-  return meta.note || "";
+  const parts = [];
+  if (meta.rawValue > 0) {
+    const freqSuffix = meta.frequency === "Annual" ? "/yr" : "/mth";
+    parts.push(`${fmt(meta.rawValue)}${freqSuffix}`);
+  }
+  if (meta.note) parts.push(meta.note);
+  return parts.join(" — ");
 }
 
 function decodeBase64ToArrayBuffer(base64) {
@@ -1018,6 +1029,7 @@ function writeCell(ws, address, value, options = {}) {
   }
 
   cell.value = value;
+  if (options.wrapText) cell.alignment = { wrapText: true, vertical: "top" };
 }
 
 async function loadTemplateWorkbook() {
@@ -1043,7 +1055,18 @@ function addCommentsSheet(workbook, commentsRows) {
   if (existing) workbook.removeWorksheet(existing.id);
 
   const commentsSheet = workbook.addWorksheet("Comments");
-  commentsRows.forEach((row) => commentsSheet.addRow(row));
+  commentsRows.forEach((rowData, idx) => {
+    const row = commentsSheet.addRow(rowData);
+    if (idx === 0) {
+      row.font = { bold: true };
+      row.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFD9D9D9" } };
+    } else {
+      const fgColor = idx % 2 === 1 ? "FFF5F5F5" : "FFFFFFFF";
+      row.eachCell({ includeEmpty: true }, (cell) => {
+        cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: fgColor } };
+      });
+    }
+  });
   commentsSheet.columns = [
     { width: 20 },
     { width: 28 },
@@ -1053,7 +1076,6 @@ function addCommentsSheet(workbook, commentsRows) {
     { width: 14 },
     { width: 60 }
   ];
-  commentsSheet.getRow(1).font = { bold: true };
 }
 
 function downloadArrayBufferAsFile(buffer, filename) {
@@ -1217,7 +1239,7 @@ async function exportToExcel() {
 
     writeCell(ws, "G14", additionalPersonalMonthly);
     writeCell(ws, "H14", additionalPersonalMonthly * 12);
-    writeCell(ws, "I14", summarizeDynamicItemNotes(additionalPersonal));
+    writeCell(ws, "I14", summarizeDynamicItemNotes(additionalPersonal), { wrapText: true });
 
     writeCell(ws, "B17", hospMeta.monthly);
     writeCell(ws, "C17", hospMeta.annual);
@@ -1241,7 +1263,8 @@ async function exportToExcel() {
         summarizeDynamicItemNotes(additionalInsurance)
       ]
         .filter(Boolean)
-        .join(" | ")
+        .join("\n"),
+      { wrapText: true }
     );
 
     writeCell(ws, "B21", latestMetrics.totalInsurance);
@@ -1269,7 +1292,7 @@ async function exportToExcel() {
 
     writeCell(ws, "G21", additionalLoansMonthly);
     writeCell(ws, "H21", additionalLoansMonthly * 12);
-    writeCell(ws, "I21", summarizeDynamicItemNotes(additionalLoans));
+    writeCell(ws, "I21", summarizeDynamicItemNotes(additionalLoans), { wrapText: true });
 
     writeCell(ws, "G22", latestMetrics.totalExpenses);
     writeCell(ws, "H22", latestMetrics.totalExpenses * 12);
@@ -1299,7 +1322,8 @@ async function exportToExcel() {
     writeCell(
       ws,
       "D31",
-      [remarkForField(otherSavingsMeta), summarizeDynamicItemNotes(additionalSavings)].filter(Boolean).join(" | ")
+      [remarkForField(otherSavingsMeta), summarizeDynamicItemNotes(additionalSavings)].filter(Boolean).join("\n"),
+      { wrapText: true }
     );
 
     writeCell(ws, "B32", latestMetrics.totalSavings);
