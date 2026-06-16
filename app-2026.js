@@ -991,6 +991,10 @@ function summarizeDynamicItemNotes(items) {
 }
 
 function remarkForField(meta) {
+  return meta.note || "";
+}
+
+function remarkForSavingsField(meta) {
   const parts = [];
   if (meta.rawValue > 0) {
     const freqSuffix = meta.frequency === "Annual" ? "/yr" : "/mth";
@@ -1299,11 +1303,11 @@ async function exportToExcel() {
 
     writeCell(ws, "B26", endowmentMeta.monthly);
     writeCell(ws, "C26", endowmentCurrentMeta.rawValue);
-    writeCell(ws, "D26", remarkForField(endowmentMeta));
+    writeCell(ws, "D26", remarkForSavingsField(endowmentMeta));
 
     writeCell(ws, "B27", investmentsMeta.monthly);
     writeCell(ws, "C27", investmentsCurrentMeta.rawValue);
-    writeCell(ws, "D27", remarkForField(investmentsMeta));
+    writeCell(ws, "D27", remarkForSavingsField(investmentsMeta));
 
     writeCell(ws, "B28", 0);
     writeCell(ws, "C28", liquidCashCurrentMeta.rawValue);
@@ -1311,18 +1315,18 @@ async function exportToExcel() {
 
     writeCell(ws, "B29", fixedDepositsMeta.monthly);
     writeCell(ws, "C29", fixedDepositsCurrentMeta.rawValue);
-    writeCell(ws, "D29", remarkForField(fixedDepositsMeta));
+    writeCell(ws, "D29", remarkForSavingsField(fixedDepositsMeta));
 
     writeCell(ws, "B30", stocksMeta.monthly);
     writeCell(ws, "C30", stocksCurrentMeta.rawValue);
-    writeCell(ws, "D30", remarkForField(stocksMeta));
+    writeCell(ws, "D30", remarkForSavingsField(stocksMeta));
 
     writeCell(ws, "B31", savingsOthersMonthly);
     writeCell(ws, "C31", otherSavingsCurrentMeta.rawValue);
     writeCell(
       ws,
       "D31",
-      [remarkForField(otherSavingsMeta), summarizeDynamicItemNotes(additionalSavings)].filter(Boolean).join("\n"),
+      [remarkForSavingsField(otherSavingsMeta), summarizeDynamicItemNotes(additionalSavings)].filter(Boolean).join("\n"),
       { wrapText: true }
     );
 
