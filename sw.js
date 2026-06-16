@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cashflow-2026-v9';
+const CACHE_NAME = 'cashflow-2026-v10';
 
 const LOCAL_ASSETS = [
   './index-2026.html',

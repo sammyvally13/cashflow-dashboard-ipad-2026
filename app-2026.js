@@ -1016,6 +1016,16 @@ function roundToTwo(value) {
   return Math.round((value + Number.EPSILON) * 100) / 100;
 }
 
+function writeMultiLineCell(ws, address, value) {
+  writeCell(ws, address, value, { wrapText: true });
+  if (value && typeof value === "string" && value.includes("\n")) {
+    const cell = ws.getCell(address);
+    const lineCount = value.split("\n").length;
+    const row = ws.getRow(cell.row);
+    row.height = Math.max(row.height || 15, lineCount * 15);
+  }
+}
+
 function writeCell(ws, address, value, options = {}) {
   const cell = ws.getCell(address);
   const numFmt = options.numFmt || "#,##0.00";
@@ -1243,7 +1253,7 @@ async function exportToExcel() {
 
     writeCell(ws, "G14", additionalPersonalMonthly);
     writeCell(ws, "H14", additionalPersonalMonthly * 12);
-    writeCell(ws, "I14", summarizeDynamicItemNotes(additionalPersonal), { wrapText: true });
+    writeMultiLineCell(ws, "I14", summarizeDynamicItemNotes(additionalPersonal));
 
     writeCell(ws, "B17", hospMeta.monthly);
     writeCell(ws, "C17", hospMeta.annual);
@@ -1259,16 +1269,10 @@ async function exportToExcel() {
 
     writeCell(ws, "B20", insuranceOthersMonthly);
     writeCell(ws, "C20", insuranceOthersMonthly * 12);
-    writeCell(
+    writeMultiLineCell(
       ws,
       "D20",
-      [
-        ciMeta.note,
-        summarizeDynamicItemNotes(additionalInsurance)
-      ]
-        .filter(Boolean)
-        .join("\n"),
-      { wrapText: true }
+      [ciMeta.note, summarizeDynamicItemNotes(additionalInsurance)].filter(Boolean).join("\n")
     );
 
     writeCell(ws, "B21", latestMetrics.totalInsurance);
@@ -1296,7 +1300,7 @@ async function exportToExcel() {
 
     writeCell(ws, "G21", additionalLoansMonthly);
     writeCell(ws, "H21", additionalLoansMonthly * 12);
-    writeCell(ws, "I21", summarizeDynamicItemNotes(additionalLoans), { wrapText: true });
+    writeMultiLineCell(ws, "I21", summarizeDynamicItemNotes(additionalLoans));
 
     writeCell(ws, "G22", latestMetrics.totalExpenses);
     writeCell(ws, "H22", latestMetrics.totalExpenses * 12);
@@ -1323,11 +1327,10 @@ async function exportToExcel() {
 
     writeCell(ws, "B31", savingsOthersMonthly);
     writeCell(ws, "C31", otherSavingsCurrentMeta.rawValue);
-    writeCell(
+    writeMultiLineCell(
       ws,
       "D31",
-      [remarkForSavingsField(otherSavingsMeta), summarizeDynamicItemNotes(additionalSavings)].filter(Boolean).join("\n"),
-      { wrapText: true }
+      [remarkForSavingsField(otherSavingsMeta), summarizeDynamicItemNotes(additionalSavings)].filter(Boolean).join("\n")
     );
 
     writeCell(ws, "B32", latestMetrics.totalSavings);
